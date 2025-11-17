@@ -38,7 +38,7 @@
     // 1 1 1 1 1
     // 0 0 1 0 0
 
-#define TAM 10      // tamanho do tabuleiro (10x10)
+/*#define TAM 10      // tamanho do tabuleiro (10x10)
 #define TAM_NAVIO 3     // tamanho fixo dos navios
 #define NUM_NAVIOS 2 // quantidade de navios
 
@@ -94,5 +94,95 @@ int main() {
         printf("\n"); 
     }
 
+    return 0;
+}*/
+
+
+#include <stdio.h>
+
+#define TAM 10          // tamanho do tabuleiro (10x10)
+#define TAM_NAVIO 3     // tamanho fixo dos navios
+#define NUM_NAVIOS 4    // agora são 4 navios
+
+void inicializarTabuleiro(int tabuleiro[TAM][TAM]) {
+    for (int i = 0; i < TAM; i++)
+        for (int j = 0; j < TAM; j++)
+            tabuleiro[i][j] = 0;
+}
+
+int validarPosicao(int tabuleiro[TAM][TAM], int linha, int coluna, int orientacao) {
+    // orientacao: 0=horizontal, 1=vertical, 2=diagonal principal, 3=diagonal inversa
+    for (int i = 0; i < TAM_NAVIO; i++) {
+        int l = linha, c = coluna;
+        if (orientacao == 0) c += i;           // horizontal
+        else if (orientacao == 1) l += i;      // vertical
+        else if (orientacao == 2) { l += i; c += i; } // diagonal principal
+        else if (orientacao == 3) { l += i; c -= i; } // diagonal inversa
+
+        // Verifica se está dentro do tabuleiro
+        if (l < 0 || l >= TAM || c < 0 || c >= TAM)
+            return 0;
+
+        // Verifica sobreposição
+        if (tabuleiro[l][c] != 0)
+            return 0;
+    }
+    return 1;
+}
+
+void posicionarNavio(int tabuleiro[TAM][TAM], int linha, int coluna, int orientacao) {
+    for (int i = 0; i < TAM_NAVIO; i++) {
+        int l = linha, c = coluna;
+        if (orientacao == 0) c += i;
+        else if (orientacao == 1) l += i;
+        else if (orientacao == 2) { l += i; c += i; }
+        else if (orientacao == 3) { l += i; c -= i; }
+
+        tabuleiro[l][c] = 3;
+    }
+}
+
+void exibirTabuleiro(int tabuleiro[TAM][TAM]) {
+    printf("\n=== TABULEIRO DE BATALHA NAVAL ===\n\n");
+    printf("   ");
+    for (int i = 0; i < TAM; i++) printf("%d ", i);
+    printf("\n");
+
+    for (int i = 0; i < TAM; i++) {
+        printf("%2d ", i);
+        for (int j = 0; j < TAM; j++) {
+            printf("%d ", tabuleiro[i][j]);
+        }
+        printf("\n");
+    }
+}
+
+int main() {
+    int tabuleiro[TAM][TAM];
+    inicializarTabuleiro(tabuleiro);
+
+    // coordenadas iniciais (linha, coluna, orientação)
+    // orientações: 0=horizontal, 1=vertical, 2=diagonal principal, 3=diagonal inversa
+    int navios[NUM_NAVIOS][3] = {
+        {1, 2, 0},  // horizontal
+        {5, 4, 1},  // vertical
+        {2, 1, 2},  // diagonal principal
+        {6, 8, 3}   // diagonal inversa
+    };
+
+    // posiciona os navios com validação
+    for (int i = 0; i < NUM_NAVIOS; i++) {
+        int linha = navios[i][0];
+        int coluna = navios[i][1];
+        int orientacao = navios[i][2];
+
+        if (validarPosicao(tabuleiro, linha, coluna, orientacao)) {
+            posicionarNavio(tabuleiro, linha, coluna, orientacao);
+        } else {
+            printf("❌ Erro ao posicionar o navio %d (posicao invalida ou sobreposta)\n", i + 1);
+        }
+    }
+
+    exibirTabuleiro(tabuleiro);
     return 0;
 }
